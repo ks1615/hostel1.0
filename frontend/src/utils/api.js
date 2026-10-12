@@ -1,14 +1,56 @@
-// API Helper to connect Frontend React App to Node.js/Express Backend
+// API Helper to connect Frontend React App to Node.js/Express Backend on Render
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+export const LIVE_RENDER_URL = 'https://hostel1-0.onrender.com/api';
+
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : LIVE_RENDER_URL);
+
+export function getApiBaseUrl() {
+  return API_BASE;
+}
 
 export async function fetchFullData() {
   try {
-    const res = await fetch(`${API_BASE}/data`);
-    if (!res.ok) throw new Error('API server returned error status');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const res = await fetch(`${API_BASE}/data`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error(`API server returned error status ${res.status}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.warn('Live API unreachable, using local storage cache:', err.message);
+    return null;
+  }
+}
+
+export async function apiSyncData(fullData) {
+  try {
+    const res = await fetch(`${API_BASE}/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fullData)
+    });
+    if (!res.ok) throw new Error(`Sync error: status ${res.status}`);
     return await res.json();
   } catch (err) {
-    console.warn('Backend API unreachable, using local storage fallback:', err.message);
+    console.warn('Live API sync failed, changes saved locally:', err.message);
+    return null;
+  }
+}
+
+export async function apiResetData() {
+  try {
+    const res = await fetch(`${API_BASE}/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!res.ok) throw new Error(`Reset error: status ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn('Live API reset failed:', err.message);
     return null;
   }
 }

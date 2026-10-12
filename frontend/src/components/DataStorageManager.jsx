@@ -195,10 +195,10 @@ export default function DataStorageManager({
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-danger)' }}>
                 <RefreshCw size={18} />
-                Reset Mock Data
+                Clean Production Reset
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                Re-populate database back to clean initial demo mock data (Block A & B, 9 rooms, 11 residents).
+                Wipe all mock data and reset the database to clean production state (all beds vacant, 0 demo residents, synchronized with live cloud).
               </p>
             </div>
             <button 
@@ -206,7 +206,7 @@ export default function DataStorageManager({
               onClick={handleResetConfirm}
             >
               <RefreshCw size={16} />
-              <span>Reset Data</span>
+              <span>Reset Clean Data</span>
             </button>
           </div>
         </div>

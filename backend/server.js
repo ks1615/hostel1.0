@@ -215,6 +215,25 @@ app.delete('/api/notices/:id', (req, res) => {
   res.json({ success: true, message: `Notice ${noticeId} deleted` });
 });
 
+// POST sync complete database state
+app.post('/api/sync', (req, res) => {
+  const syncData = req.body;
+  if (!syncData || typeof syncData !== 'object') {
+    return res.status(400).json({ success: false, error: 'Invalid data' });
+  }
+  const cleanData = {
+    rooms: syncData.rooms || INITIAL_ROOMS,
+    residents: syncData.residents || [],
+    payments: syncData.payments || [],
+    maintenance: syncData.maintenance || [],
+    notices: syncData.notices || [],
+    upiConfig: syncData.upiConfig || INITIAL_UPI_CONFIG,
+    lastUpdated: new Date().toISOString()
+  };
+  saveDb(cleanData);
+  res.json({ success: true, db: cleanData });
+});
+
 // POST reset database
 app.post('/api/reset', (req, res) => {
   const initialDb = {

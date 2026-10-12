@@ -212,7 +212,7 @@ export default function LoginModal({ residents, onLogin, onClose, initialRole = 
 
           {/* Hostel Member / Resident Login Form */}
           {roleTab === 'member' && (
-            <form onSubmit={handleMemberSubmit}>
+            <div>
               <div style={{ 
                 background: 'rgba(16, 185, 129, 0.08)', 
                 border: '1px solid rgba(16, 185, 129, 0.2)', 
@@ -229,38 +229,52 @@ export default function LoginModal({ residents, onLogin, onClose, initialRole = 
                 <span>Resident portal to view room details, receipts & pay dues via UPI QR.</span>
               </div>
 
-              <div className="form-group">
-                <label>Select Resident Account</label>
-                <select 
-                  className="form-select"
-                  value={selectedResidentId}
-                  onChange={(e) => setSelectedResidentId(e.target.value)}
-                >
-                  {residents && residents.map(r => (
-                    <option key={r.id} value={r.id}>
-                      {r.name} (Room {r.roomNumber} - Bed #{r.bedNo})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {residents && residents.length > 0 ? (
+                <form onSubmit={handleMemberSubmit}>
+                  <div className="form-group">
+                    <label>Select Resident Account</label>
+                    <select 
+                      className="form-select"
+                      value={selectedResidentId}
+                      onChange={(e) => setSelectedResidentId(e.target.value)}
+                    >
+                      {residents.map(r => (
+                        <option key={r.id} value={r.id}>
+                          {r.name} (Room {r.roomNumber} - Bed #{r.bedNo})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div className="form-group">
-                <label>Resident PIN</label>
-                <input 
-                  type="password" 
-                  className="form-input" 
-                  placeholder="Enter 4-digit PIN"
-                  value={memberPin}
-                  onChange={(e) => setMemberPin(e.target.value)}
-                  required
-                />
-              </div>
+                  <div className="form-group">
+                    <label>Resident PIN</label>
+                    <input 
+                      type="password" 
+                      className="form-input" 
+                      placeholder="Enter 4-digit PIN"
+                      value={memberPin}
+                      onChange={(e) => setMemberPin(e.target.value)}
+                      required
+                    />
+                  </div>
 
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.75rem', padding: '0.75rem' }}>
-                <User size={18} />
-                <span>Login as Member</span>
-              </button>
-            </form>
+                  <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.75rem', padding: '0.75rem' }}>
+                    <User size={18} />
+                    <span>Login as Member</span>
+                  </button>
+                </form>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '1.5rem 1rem', background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
+                  <Building2 size={32} style={{ margin: '0 auto 0.75rem', color: 'var(--color-gold)' }} />
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-black)', marginBottom: '0.35rem' }}>
+                    No Registered Residents
+                  </div>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                    There are currently no residents registered. The hostel owner must login with the Owner Admin account and admit residents first.
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

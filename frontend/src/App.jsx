@@ -16,9 +16,12 @@ import LoginModal from './components/LoginModal';
 import ResidentDashboard from './components/ResidentDashboard';
 
 import { loadData, saveData, resetData, exportDataJSON } from './utils/storage';
+import { fetchFullData, apiSyncData, apiResetData, getApiBaseUrl } from './utils/api';
 
 export default function App() {
   const [data, setData] = useState(() => loadData());
+  const [cloudStatus, setCloudStatus] = useState('connecting'); // 'connected' | 'connecting' | 'cached'
+  const isInitialSyncRef = React.useRef(true);
   const [activeTab, setActiveTab] = useState('rooms');
   const [searchTerm, setSearchTerm] = useState('');
   const [theme, setTheme] = useState(() => localStorage.getItem('STARLIGHT_THEME') || 'dark');
@@ -49,9 +52,39 @@ export default function App() {
     residentToEdit: null 
   });
 
-  // Sync dataset changes to localStorage (Only owner edits save mutations)
+  // Fetch live production dataset from cloud backend on mount
+  useEffect(() => {
+    let isMounted = true;
+    const initCloudData = async () => {
+      try {
+        const liveData = await fetchFullData();
+        if (liveData && liveData.rooms && isMounted) {
+          setData(liveData);
+          saveData(liveData);
+          setCloudStatus('connected');
+        } else if (isMounted) {
+          setCloudStatus('cached');
+        }
+      } catch (err) {
+        if (isMounted) setCloudStatus('cached');
+      }
+    };
+    initCloudData();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Sync dataset changes to localStorage and push to live cloud backend
   useEffect(() => {
     saveData(data);
+    if (isInitialSyncRef.current) {
+      isInitialSyncRef.current = false;
+      return;
+    }
+    apiSyncData(data).then(res => {
+      if (res && res.success) {
+        setCloudStatus('connected');
+      }
+    });
   }, [data]);
 
   // Sync authentication state to localStorage
@@ -354,22 +387,27 @@ export default function App() {
   };
 
   // Storage
-  const handleRestoreData = (newData) => {
-    setData({
-      rooms: newData.rooms || [],
+  const handleRestoreData = async (newData) => {
+    const fullState = {
+      rooms: newData.rooms || data.rooms,
       residents: newData.residents || [],
       payments: newData.payments || [],
       maintenance: newData.maintenance || [],
       notices: newData.notices || [],
       upiConfig: newData.upiConfig || data.upiConfig,
       lastUpdated: new Date().toISOString()
-    });
+    };
+    setData(fullState);
+    await apiSyncData(fullState);
+    showToast('Database restored and synced to live cloud!');
   };
 
-  const handleResetData = () => {
+  const handleResetData = async () => {
     const res = resetData();
     if (res) {
       setData(res);
+      await apiResetData();
+      showToast('Database reset to clean production state.');
     }
   };
 
@@ -425,7 +463,7 @@ export default function App() {
           {/* 3-Page System Portal Experience Selector (Dedicated Position) */}
           <div className="portal-switcher-banner">
             <div className="portal-switcher-top">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
                 <span style={{ 
                   background: 'var(--color-black)', 
                   color: 'var(--accent-gold)', 
@@ -439,6 +477,26 @@ export default function App() {
                 </span>
                 <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
                   Select which view you want to access:
+                </span>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  background: cloudStatus === 'connected' ? 'rgba(16, 126, 89, 0.12)' : 'rgba(197, 160, 89, 0.15)',
+                  color: cloudStatus === 'connected' ? '#107e59' : '#8c6b2d',
+                  padding: '0.15rem 0.55rem',
+                  borderRadius: '12px',
+                  fontSize: '0.72rem',
+                  fontWeight: 700
+                }} title={`Backend API: ${getApiBaseUrl()}`}>
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: cloudStatus === 'connected' ? '#107e59' : '#8c6b2d',
+                    display: 'inline-block'
+                  }}></span>
+                  {cloudStatus === 'connected' ? '🟢 Live Cloud DB' : '⚡ Cloud Syncing...'}
                 </span>
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>

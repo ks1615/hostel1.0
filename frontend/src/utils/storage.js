@@ -1,10 +1,14 @@
 import { INITIAL_ROOMS, INITIAL_RESIDENTS, INITIAL_PAYMENTS, INITIAL_MAINTENANCE, INITIAL_UPI_CONFIG, INITIAL_NOTICES } from '../data/initialData';
 
-const STORAGE_KEY = 'SAKHARE_PLOT_HOSTEL_DATA_V2';
+const STORAGE_KEY = 'SAKHARE_PLOT_HOSTEL_DATA_LIVE_V1';
 
 export function loadData() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('STARLIGHT_HOSTEL_DATA_V1');
+    // Clear old demo data keys if present
+    localStorage.removeItem('SAKHARE_PLOT_HOSTEL_DATA_V2');
+    localStorage.removeItem('STARLIGHT_HOSTEL_DATA_V1');
+
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       const defaultState = {
         rooms: INITIAL_ROOMS,
@@ -21,9 +25,9 @@ export function loadData() {
     const parsed = JSON.parse(raw);
     return {
       rooms: parsed.rooms || INITIAL_ROOMS,
-      residents: parsed.residents || INITIAL_RESIDENTS,
-      payments: parsed.payments || INITIAL_PAYMENTS,
-      maintenance: parsed.maintenance || INITIAL_MAINTENANCE,
+      residents: parsed.residents || [],
+      payments: parsed.payments || [],
+      maintenance: parsed.maintenance || [],
       notices: parsed.notices || INITIAL_NOTICES,
       upiConfig: parsed.upiConfig || INITIAL_UPI_CONFIG,
       lastUpdated: parsed.lastUpdated || new Date().toISOString()
