@@ -1,0 +1,292 @@
+{
+  "rooms": [
+    {
+      "id": "room_101",
+      "number": "101",
+      "block": "Block A",
+      "floor": 1,
+      "type": "Double Shared",
+      "capacity": 2,
+      "rent": 7500,
+      "isAC": true,
+      "attachedBath": true,
+      "amenities": [
+        "WiFi",
+        "Study Desk",
+        "AC",
+        "Geyser",
+        "Balcony"
+      ],
+      "status": "Available",
+      "beds": [
+        {
+          "bedNo": 1,
+          "residentId": null
+        },
+        {
+          "bedNo": 2,
+          "residentId": null
+        }
+      ],
+      "notes": "Ground floor corner room with balcony."
+    },
+    {
+      "id": "room_102",
+      "number": "102",
+      "block": "Block A",
+      "floor": 1,
+      "type": "Single Deluxe",
+      "capacity": 1,
+      "rent": 12000,
+      "isAC": true,
+      "attachedBath": true,
+      "amenities": [
+        "WiFi",
+        "Study Desk",
+        "AC",
+        "Geyser",
+        "Refrigerator",
+        "Smart TV"
+      ],
+      "status": "Available",
+      "beds": [
+        {
+          "bedNo": 1,
+          "residentId": null
+        }
+      ],
+      "notes": "Premium single deluxe room."
+    },
+    {
+      "id": "room_103",
+      "number": "103",
+      "block": "Block A",
+      "floor": 1,
+      "type": "Triple Shared",
+      "capacity": 3,
+      "rent": 5500,
+      "isAC": false,
+      "attachedBath": true,
+      "amenities": [
+        "WiFi",
+        "Study Desk",
+        "Ceiling Fan",
+        "Geyser"
+      ],
+      "status": "Available",
+      "beds": [
+        {
+          "bedNo": 1,
+          "residentId": null
+        },
+        {
+          "bedNo": 2,
+          "residentId": null
+        },
+        {
+          "bedNo": 3,
+          "residentId": null
+        }
+      ],
+      "notes": "Spacious triple sharing room."
+    },
+    {
+      "id": "room_104",
+      "number": "104",
+      "block": "Block A",
+      "floor": 1,
+      "type": "Double Shared",
+      "capacity": 2,
+      "rent": 7000,
+      "isAC": false,
+      "attachedBath": false,
+      "amenities": [
+        "WiFi",
+        "Study Desk",
+        "Ceiling Fan"
+      ],
+      "status": "Available",
+      "beds": [
+        {
+          "bedNo": 1,
+          "residentId": null
+        },
+        {
+          "bedNo": 2,
+          "residentId": null
+        }
+      ],
+      "notes": "Ground floor double room."
+    },
+    {
+      "id": "room_201",
+      "number": "201",
+      "block": "Block A",
+      "floor": 2,
+      "type": "Double Shared",
+      "capacity": 2,
+      "rent": 8000,
+      "isAC": true,
+      "attachedBath": true,
+      "amenities": [
+        "WiFi",
+        "Study Desk",
+        "AC",
+        "Geyser",
+        "Balcony"
+      ],
+      "status": "Available",
+      "beds": [
+        {
+          "bedNo": 1,
+          "residentId": null
+        },
+        {
+          "bedNo": 2,
+          "residentId": null
+        }
+      ],
+      "notes": "Second floor courtyard facing room."
+    },
+    {
+      "id": "room_202",
+      "number": "202",
+      "block": "Block A",
+      "floor": 2,
+      "type": "Single Deluxe",
+      "capacity": 1,
+      "rent": 12500,
+      "isAC": true,
+      "attachedBath": true,
+      "amenities": [
+        "WiFi",
+        "Study Desk",
+        "AC",
+        "Geyser",
+        "Balcony"
+      ],
+      "status": "Available",
+      "beds": [
+        {
+          "bedNo": 1,
+          "residentId": null
+        }
+      ],
+      "notes": "Second floor single deluxe room."
+    },
+    {
+      "id": "room_203",
+      "number": "203",
+      "block": "Block A",
+      "floor": 2,
+      "type": "Triple Shared",
+      "capacity": 3,
+      "rent": 6000,
+      "isAC": true,
+      "attachedBath": true,
+      "amenities": [
+        "WiFi",
+        "Study Desk",
+        "AC",
+        "Geyser"
+      ],
+      "status": "Available",
+      "beds": [
+        {
+          "bedNo": 1,
+          "residentId": null
+        },
+        {
+          "bedNo": 2,
+          "residentId": null
+        },
+        {
+          "bedNo": 3,
+          "residentId": null
+        }
+      ],
+      "notes": "Second floor triple sharing room."
+    },
+    {
+      "id": "room_301",
+      "number": "301",
+      "block": "Block B",
+      "floor": 3,
+      "type": "Executive Suite",
+      "capacity": 2,
+      "rent": 14000,
+      "isAC": true,
+      "attachedBath": true,
+      "amenities": [
+        "WiFi",
+        "Study Desk",
+        "AC",
+        "Geyser",
+        "Balcony",
+        "Mini Fridge",
+        "Sofa"
+      ],
+      "status": "Available",
+      "beds": [
+        {
+          "bedNo": 1,
+          "residentId": null
+        },
+        {
+          "bedNo": 2,
+          "residentId": null
+        }
+      ],
+      "notes": "Top floor luxury suite."
+    },
+    {
+      "id": "room_302",
+      "number": "302",
+      "block": "Block B",
+      "floor": 3,
+      "type": "Double Shared",
+      "capacity": 2,
+      "rent": 7500,
+      "isAC": true,
+      "attachedBath": true,
+      "amenities": [
+        "WiFi",
+        "Study Desk",
+        "AC",
+        "Geyser"
+      ],
+      "status": "Available",
+      "beds": [
+        {
+          "bedNo": 1,
+          "residentId": null
+        },
+        {
+          "bedNo": 2,
+          "residentId": null
+        }
+      ],
+      "notes": "Third floor double room."
+    }
+  ],
+  "residents": [],
+  "payments": [],
+  "maintenance": [],
+  "notices": [
+    {
+      "id": "notice_1",
+      "title": "Welcome to Sakhare Plot Hostel",
+      "content": "Welcome to the official hostel management portal. Residents and visitors can view room vacancies, hostel guidelines, and fee payment details here.",
+      "category": "General",
+      "date": "2026-10-13",
+      "isPinned": true,
+      "author": "Hostel Management"
+    }
+  ],
+  "upiConfig": {
+    "upiId": "sakhareplot@upi",
+    "payeeName": "Sakhare Plot Hostel",
+    "notePrefix": "Rent Payment"
+  },
+  "lastUpdated": "2026-10-12T19:54:00.751Z"
+}
