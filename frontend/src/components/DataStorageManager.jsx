@@ -36,9 +36,9 @@ export default function DataStorageManager({
   };
 
   const handleResetConfirm = () => {
-    if (window.confirm('Are you sure you want to reset all data back to original demo state? Current local changes will be replaced.')) {
+    if (window.confirm('Are you sure you want to restore the official hostel database (9 rooms, 11 real residents, notices & payment records)?')) {
       onResetData();
-      showToast('Database reset to initial demo state.', 'success');
+      showToast('Database restored to official hostel records.', 'success');
     }
   };
 
@@ -195,10 +195,10 @@ export default function DataStorageManager({
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-danger)' }}>
                 <RefreshCw size={18} />
-                Clean Production Reset
+                Restore Official Production Records
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                Wipe all mock data and reset the database to clean production state (all beds vacant, 0 demo residents, synchronized with live cloud).
+                Reset the database to the official verified hostel records (9 rooms, 11 registered residents, payments, and notices synchronized with live cloud).
               </p>
             </div>
             <button 
@@ -206,7 +206,7 @@ export default function DataStorageManager({
               onClick={handleResetConfirm}
             >
               <RefreshCw size={16} />
-              <span>Reset Clean Data</span>
+              <span>Restore Official Data</span>
             </button>
           </div>
         </div>

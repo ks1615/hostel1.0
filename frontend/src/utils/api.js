@@ -2,10 +2,7 @@
 
 export const LIVE_RENDER_URL = 'https://hostel1-0.onrender.com/api';
 
-const API_BASE = import.meta.env.VITE_API_URL || 
-  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000/api'
-    : LIVE_RENDER_URL);
+const API_BASE = import.meta.env.VITE_API_URL || LIVE_RENDER_URL;
 
 export function getApiBaseUrl() {
   return API_BASE;
@@ -14,7 +11,8 @@ export function getApiBaseUrl() {
 export async function fetchFullData() {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    // Render free tier cold-start can take up to 30-35 seconds
+    const timeoutId = setTimeout(() => controller.abort(), 35000);
     const res = await fetch(`${API_BASE}/data`, { signal: controller.signal });
     clearTimeout(timeoutId);
     if (!res.ok) throw new Error(`API server returned error status ${res.status}`);
@@ -28,11 +26,15 @@ export async function fetchFullData() {
 
 export async function apiSyncData(fullData) {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 35000);
     const res = await fetch(`${API_BASE}/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(fullData)
+      body: JSON.stringify(fullData),
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
     if (!res.ok) throw new Error(`Sync error: status ${res.status}`);
     return await res.json();
   } catch (err) {

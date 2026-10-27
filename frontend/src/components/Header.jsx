@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, Search, Download, Upload, Sun, Moon, Plus, LogOut, ShieldCheck, User, Globe } from 'lucide-react';
+import { Building2, Search, Download, Upload, Sun, Moon, Plus, LogOut, ShieldCheck, User, Globe, Share2 } from 'lucide-react';
 
 export default function Header({ 
   currentUser,
@@ -12,7 +12,8 @@ export default function Header({
   onOpenAddRoom,
   onOpenLogin,
   onLogout,
-  onNavigateToPublic
+  onNavigateToPublic,
+  onOpenShare
 }) {
   const isOwner = currentUser?.role === 'owner';
   const isMember = currentUser?.role === 'member';
@@ -85,6 +86,21 @@ export default function Header({
             </button>
           </>
         )}
+
+        <button 
+          className="btn btn-secondary btn-sm" 
+          onClick={onOpenShare}
+          title="Share Real Data Public Link"
+          style={{ 
+            borderColor: 'var(--accent-gold)', 
+            background: 'rgba(197, 160, 89, 0.08)',
+            color: 'var(--color-black)',
+            fontWeight: 700 
+          }}
+        >
+          <Share2 size={15} color="var(--accent-gold)" />
+          <span>Share Link</span>
+        </button>
 
         <button 
           className="btn btn-secondary btn-sm" 

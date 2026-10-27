@@ -1,10 +1,11 @@
 import { INITIAL_ROOMS, INITIAL_RESIDENTS, INITIAL_PAYMENTS, INITIAL_MAINTENANCE, INITIAL_UPI_CONFIG, INITIAL_NOTICES } from '../data/initialData';
 
-const STORAGE_KEY = 'SAKHARE_PLOT_HOSTEL_DATA_LIVE_V1';
+const STORAGE_KEY = 'SAKHARE_PLOT_HOSTEL_DATA_LIVE_V2';
 
 export function loadData() {
   try {
-    // Clear old demo data keys if present
+    // Clear older keys to ensure clean sync with real production data
+    localStorage.removeItem('SAKHARE_PLOT_HOSTEL_DATA_LIVE_V1');
     localStorage.removeItem('SAKHARE_PLOT_HOSTEL_DATA_V2');
     localStorage.removeItem('STARLIGHT_HOSTEL_DATA_V1');
 
@@ -23,11 +24,14 @@ export function loadData() {
       return defaultState;
     }
     const parsed = JSON.parse(raw);
+    const hasValidResidents = Array.isArray(parsed.residents) && parsed.residents.length > 0;
+    const hasValidRooms = Array.isArray(parsed.rooms) && parsed.rooms.length > 0;
+    
     return {
-      rooms: parsed.rooms || INITIAL_ROOMS,
-      residents: parsed.residents || [],
-      payments: parsed.payments || [],
-      maintenance: parsed.maintenance || [],
+      rooms: hasValidRooms ? parsed.rooms : INITIAL_ROOMS,
+      residents: hasValidResidents ? parsed.residents : INITIAL_RESIDENTS,
+      payments: (Array.isArray(parsed.payments) && parsed.payments.length > 0) ? parsed.payments : INITIAL_PAYMENTS,
+      maintenance: parsed.maintenance || INITIAL_MAINTENANCE,
       notices: parsed.notices || INITIAL_NOTICES,
       upiConfig: parsed.upiConfig || INITIAL_UPI_CONFIG,
       lastUpdated: parsed.lastUpdated || new Date().toISOString()

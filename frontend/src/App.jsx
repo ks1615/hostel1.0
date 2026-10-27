@@ -14,6 +14,7 @@ import DataStorageManager from './components/DataStorageManager';
 import Toast from './components/Toast';
 import LoginModal from './components/LoginModal';
 import ResidentDashboard from './components/ResidentDashboard';
+import ShareModal from './components/ShareModal';
 
 import { loadData, saveData, resetData, exportDataJSON } from './utils/storage';
 import { fetchFullData, apiSyncData, apiResetData, getApiBaseUrl } from './utils/api';
@@ -26,10 +27,16 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [theme, setTheme] = useState(() => localStorage.getItem('STARLIGHT_THEME') || 'dark');
   const [toast, setToast] = useState(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Authentication State: Null by default so shared links open in Public Read-Only Visitor mode
   const [currentUser, setCurrentUser] = useState(() => {
     try {
+      // If shared public link URL parameter is present, force public visitor mode
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      if (params && (params.get('mode') === 'public' || params.get('view') === 'public' || params.get('share') === '1')) {
+        return null;
+      }
       const saved = localStorage.getItem('SAKHARE_CURRENT_USER');
       return saved ? JSON.parse(saved) : null;
     } catch {
@@ -58,12 +65,30 @@ export default function App() {
     const initCloudData = async () => {
       try {
         const liveData = await fetchFullData();
-        if (liveData && liveData.rooms && isMounted) {
-          setData(liveData);
-          saveData(liveData);
+        if (liveData && Array.isArray(liveData.rooms) && liveData.rooms.length > 0 && isMounted) {
+          setData(prev => {
+            const localResidentCount = prev?.residents?.length || 0;
+            const cloudResidentCount = liveData?.residents?.length || 0;
+            // If cloud has as many or more residents, accept cloud data
+            if (cloudResidentCount >= localResidentCount) {
+              saveData(liveData);
+              return liveData;
+            } else {
+              // Local has newer additions made by the owner! Push local updates to cloud
+              apiSyncData(prev);
+              return prev;
+            }
+          });
           setCloudStatus('connected');
         } else if (isMounted) {
           setCloudStatus('cached');
+          // If cloud data was empty or offline, push current dataset to cloud
+          setData(prev => {
+            if (prev && prev.rooms && prev.rooms.length > 0) {
+              apiSyncData(prev);
+            }
+            return prev;
+          });
         }
       } catch (err) {
         if (isMounted) setCloudStatus('cached');
@@ -72,6 +97,21 @@ export default function App() {
     initCloudData();
     return () => { isMounted = false; };
   }, []);
+
+  // Force sync helper for share modal
+  const handleForceSyncCloud = async () => {
+    setCloudStatus('connecting');
+    try {
+      const res = await apiSyncData(data);
+      if (res && res.success) {
+        setCloudStatus('connected');
+        return true;
+      }
+    } catch (e) {
+      console.warn('Sync failed:', e);
+    }
+    return false;
+  };
 
   // Sync dataset changes to localStorage and push to live cloud backend
   useEffect(() => {
@@ -457,6 +497,7 @@ export default function App() {
           onOpenLogin={handleOpenLogin}
           onLogout={handleLogout}
           onNavigateToPublic={() => setActiveTab('rooms')}
+          onOpenShare={() => setIsShareModalOpen(true)}
         />
 
         <div className="page-wrapper">
@@ -499,9 +540,26 @@ export default function App() {
                   {cloudStatus === 'connected' ? '🟢 Live Cloud DB' : '⚡ Cloud Syncing...'}
                 </span>
               </div>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Active Mode: <strong style={{ color: 'var(--color-black)' }}>{isOwner ? '👑 Page 1: Owner Admin' : isMember ? '🎓 Page 2: Resident Member' : '🌐 Page 3: Public Shared Link'}</strong>
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  Active Mode: <strong style={{ color: 'var(--color-black)' }}>{isOwner ? '👑 Page 1: Owner Admin' : isMember ? '🎓 Page 2: Resident Member' : '🌐 Page 3: Public Shared Link'}</strong>
+                </span>
+                <button 
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => setIsShareModalOpen(true)}
+                  style={{ 
+                    borderColor: 'var(--accent-gold)', 
+                    background: 'rgba(197, 160, 89, 0.12)', 
+                    fontWeight: 700,
+                    fontSize: '0.775rem',
+                    padding: '0.25rem 0.65rem'
+                  }}
+                  title="Share Live Hostel Link with Real Data"
+                >
+                  🔗 Share Public Link
+                </button>
+              </div>
             </div>
 
             <div className="portal-cards-grid">
@@ -772,6 +830,18 @@ export default function App() {
           residentToEdit={residentModalState.residentToEdit}
           onClose={() => setResidentModalState({ isOpen: false, preSelectedRoom: null, preSelectedBed: null, residentToEdit: null })}
           onSave={handleSaveResident}
+        />
+      )}
+
+      {/* Share Modal */}
+      {isShareModalOpen && (
+        <ShareModal 
+          roomCount={data.rooms.length}
+          residentCount={data.residents.length}
+          cloudStatus={cloudStatus}
+          onForceSync={handleForceSyncCloud}
+          onClose={() => setIsShareModalOpen(false)}
+          showToast={showToast}
         />
       )}
 
