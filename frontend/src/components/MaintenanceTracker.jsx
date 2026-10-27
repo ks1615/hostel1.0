@@ -18,6 +18,10 @@ export default function MaintenanceTracker({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!isOwner) {
+      alert('Permission Denied: Only the hostel owner can log maintenance tickets.');
+      return;
+    }
     if (!form.issue.trim()) {
       alert('Please enter issue description');
       return;
@@ -149,8 +153,8 @@ export default function MaintenanceTracker({
         </table>
       </div>
 
-      {/* New Ticket Modal */}
-      {showModal && (
+      {/* New Ticket Modal (Owner Only) */}
+      {showModal && isOwner && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">

@@ -341,8 +341,13 @@ export default function App() {
     showToast('Resident check-out completed. Bed is now vacant.');
   };
 
-  // Payments
+  // Payments (Owner only)
   const handleSavePayment = (paymentData) => {
+    if (currentUser?.role !== 'owner') {
+      alert('Permission Denied: Only the hostel owner can record or edit payment transactions.');
+      return;
+    }
+
     setData(prev => {
       const updatedPayments = [paymentData, ...prev.payments];
       const updatedResidents = prev.residents.map(r => {
@@ -362,8 +367,13 @@ export default function App() {
     showToast(`Payment of ₹${paymentData.amount.toLocaleString()} recorded!`);
   };
 
-  // Maintenance
+  // Maintenance (Owner only)
   const handleSaveTicket = (ticketData) => {
+    if (currentUser?.role !== 'owner') {
+      alert('Permission Denied: Only the hostel owner can log or edit maintenance tickets.');
+      return;
+    }
+
     setData(prev => ({
       ...prev,
       maintenance: [ticketData, ...prev.maintenance]
@@ -426,8 +436,13 @@ export default function App() {
     }));
   };
 
-  // Storage
+  // Storage (Owner only)
   const handleRestoreData = async (newData) => {
+    if (currentUser?.role !== 'owner') {
+      alert('Permission Denied: Only the hostel owner can import or restore database records.');
+      return;
+    }
+
     const fullState = {
       rooms: newData.rooms || data.rooms,
       residents: newData.residents || [],
@@ -443,6 +458,11 @@ export default function App() {
   };
 
   const handleResetData = async () => {
+    if (currentUser?.role !== 'owner') {
+      alert('Permission Denied: Only the hostel owner can reset the database.');
+      return;
+    }
+
     const res = resetData();
     if (res) {
       setData(res);

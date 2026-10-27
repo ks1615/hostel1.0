@@ -68,13 +68,40 @@ function saveDb(data) {
   }
 }
 
+// Owner Security Authorization Middleware
+const OWNER_SECRET_TOKEN = 'sakhare_owner_admin_secret_v1';
+
+function requireOwnerAuth(req, res, next) {
+  // Allow read-only GET requests for everyone (public shared link showcase)
+  if (req.method === 'GET') {
+    return next();
+  }
+
+  const authHeader = req.headers['authorization'] || req.headers['x-owner-role'] || req.headers['x-admin-key'];
+  if (
+    authHeader === `Bearer ${OWNER_SECRET_TOKEN}` || 
+    authHeader === OWNER_SECRET_TOKEN ||
+    authHeader === 'owner'
+  ) {
+    return next();
+  }
+
+  return res.status(403).json({
+    success: false,
+    error: 'Permission Denied: Only the verified Hostel Owner has permission to edit or delete records.'
+  });
+}
+
 // REST API Endpoints
 
-// GET full database
+// GET full database (Public read-only)
 app.get('/api/data', (req, res) => {
   const db = loadDb();
   res.json(db);
 });
+
+// Protect all mutating endpoints
+app.use('/api', requireOwnerAuth);
 
 // POST save/update room
 app.post('/api/rooms', (req, res) => {

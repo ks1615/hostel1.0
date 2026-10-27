@@ -34,6 +34,10 @@ export default function PaymentsTracker({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!isOwner) {
+      alert('Permission Denied: Only the hostel owner can record payment transactions.');
+      return;
+    }
     const targetRes = residents.find(r => r.id === form.residentId);
     if (!targetRes) {
       alert('Please select a resident');
@@ -277,8 +281,8 @@ export default function PaymentsTracker({
         </table>
       </div>
 
-      {/* Manual Payment Record Modal */}
-      {showPaymentModal && (
+      {/* Manual Payment Record Modal (Owner Only) */}
+      {showPaymentModal && isOwner && (
         <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
