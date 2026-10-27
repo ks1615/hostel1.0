@@ -67,14 +67,19 @@ export default function App() {
         const liveData = await fetchFullData();
         if (liveData && Array.isArray(liveData.rooms) && liveData.rooms.length > 0 && isMounted) {
           setData(prev => {
-            const localResidentCount = prev?.residents?.length || 0;
-            const cloudResidentCount = liveData?.residents?.length || 0;
-            // If cloud has as many or more residents, accept cloud data
-            if (cloudResidentCount >= localResidentCount) {
+            // Anyone who is NOT the owner is a viewer and must always see the owner's latest cloud data
+            if (currentUser?.role !== 'owner') {
+              saveData(liveData);
+              return liveData;
+            }
+            // If logged in as owner, keep whichever dataset has newest updates
+            const localDate = new Date(prev?.lastUpdated || 0).getTime();
+            const cloudDate = new Date(liveData?.lastUpdated || 0).getTime();
+            if (cloudDate >= localDate) {
               saveData(liveData);
               return liveData;
             } else {
-              // Local has newer additions made by the owner! Push local updates to cloud
+              // Local changes are newer, push to cloud so everyone gets them
               apiSyncData(prev);
               return prev;
             }
@@ -82,13 +87,14 @@ export default function App() {
           setCloudStatus('connected');
         } else if (isMounted) {
           setCloudStatus('cached');
-          // If cloud data was empty or offline, push current dataset to cloud
-          setData(prev => {
-            if (prev && prev.rooms && prev.rooms.length > 0) {
-              apiSyncData(prev);
-            }
-            return prev;
-          });
+          if (currentUser?.role === 'owner') {
+            setData(prev => {
+              if (prev && prev.rooms && prev.rooms.length > 0) {
+                apiSyncData(prev);
+              }
+              return prev;
+            });
+          }
         }
       } catch (err) {
         if (isMounted) setCloudStatus('cached');
@@ -96,7 +102,46 @@ export default function App() {
     };
     initCloudData();
     return () => { isMounted = false; };
-  }, []);
+  }, [currentUser]);
+
+  // Live Auto-Sync: Continuously sync data so when owner saves, everyone sees it in real-time
+  useEffect(() => {
+    const syncLatestData = async () => {
+      try {
+        const liveData = await fetchFullData();
+        if (liveData && Array.isArray(liveData.rooms) && liveData.rooms.length > 0) {
+          setData(prev => {
+            // Only update viewers if cloud timestamp is newer or data changed
+            if (currentUser?.role !== 'owner') {
+              if (liveData.lastUpdated !== prev?.lastUpdated) {
+                saveData(liveData);
+                return liveData;
+              }
+              return prev;
+            }
+            return prev;
+          });
+          setCloudStatus('connected');
+        }
+      } catch {
+        // Silent catch for background polling
+      }
+    };
+
+    // Poll every 10 seconds for real-time live updates
+    const pollInterval = setInterval(syncLatestData, 10000);
+
+    // Re-check whenever the tab/window is focused (e.g. user opens phone or switches back)
+    const handleWindowFocus = () => {
+      syncLatestData();
+    };
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [currentUser]);
 
   // Force sync helper for share modal
   const handleForceSyncCloud = async () => {
